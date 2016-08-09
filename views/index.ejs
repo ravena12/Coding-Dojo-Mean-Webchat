@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>webchat </title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.js"></script>
+	<script type = 'text/javascript' src ='/socket.io/socket.io.js'></script>
+   <script type ="text/javascript">
+        $(document).ready(function (){
+            var name = '';
+            $('#chatroom').hide();
+            var socket = io.connect();
+
+            socket.emit('history', {}) 
+
+            socket.on('story', function (data) {
+                console.log(data.result);
+                for(message in data.result){
+                    $('#display').append(data.result[message].name, " ", data.result[message].text +'<br>');
+                }
+
+
+            })
+
+
+        $('#form').submit(function() {
+            name = $('#name').val();
+                 socket.emit("signin", {
+                     name : name,
+                 });
+                return false;
+        });
+        socket.on('update', function (data){
+
+                $('#form_stuff').hide();
+                $('#chatroom').show();
+    
+
+        });
+         $('#message').submit(function() {
+                text = $('#text').val();
+                 socket.emit("room", {name : name, text : text });
+                return false;
+        });
+         socket.on('update2', function (data){
+                $('#chatroom').show();
+                console.log(data.result);
+                $('#display').html('')
+                for(message in data.result){
+                    $('#display').append(data.result[message].name, " ", data.result[message].text +'<br>');
+                }
+            });
+          });
+       
+        
+
+
+
+    </script>
+</head>
+<body>
+<div id = 'form_stuff'>
+    <form  id="form">
+        <div>
+            <label for="">Your Name: </label>
+            <input type="text" name="name" id="name">
+        </div>
+        <input type="submit" value="ok">
+        <input type="submit" value="cancel">
+    </form>
+</div>
+<div id ='chatroom'>
+    <h3> Conversation Board </h3>
+    <div id='display'></div>
+    <form id='message'>
+        <textarea cols = '50' id ='text'></textarea>
+        <input type='submit' value='send'>
+    </form>
+</div>
+</div>
+
+</body>
+</html>
